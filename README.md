@@ -30,3 +30,44 @@ MASTER_SERVER_PUBLIC_IP = "34.207.188.28"
 To get the Jenkins initial password
 - SSH to the MASTER_SERVER EC@ instance.
 - And paste the output from the --> sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+Now lets work on creating the Slave Nodes
+
+Create the slave.tf terraform script
+
+```
+terraform plan
+terraform apply --auto-approve
+```
+
+Note down the output from these scripts
+
+```
+NODE_SERVER_PRIVATE_IP = "172.31.62.61"
+NODE_SERVER_PUBLIC_IP = "54.210.86.240"
+```
+
+Now SSH to NODE_SERVER
+
+- Reset the password
+- Edit SSH setting to allow password based authentication and to permit root login
+```
+sudo -i
+passwd ec2-user
+vi /etc/ssh/sshd_config
+service sshd restart
+```
+Remove '#' before "AllowPasswordBasedAuthentication" and "PermitRootLogin"
+
+Now lets generate a SSH key in Master Server
+```
+sudo -i
+passwd ec2-user
+ssh-keygen ##Hit enter thrice
+ssh-copy-id ec2-user@NODE_SERVER_PRIVATE_IP # Replace NODE_SERVER_PRIVATE_IP with the IP of your node
+```
+
+And now you can SSH Node server through Master server
+```
+ssh 'ec2-user@NODE_SERVER_PRIVATE_IP'
+```
