@@ -71,3 +71,11 @@ And now you can SSH Node server through Master server
 ```
 ssh 'ec2-user@NODE_SERVER_PRIVATE_IP'
 ```
+
+#CI Part
+##Jenkins
+
+- Set up credential for docker(Username Password), Github OAuth(secret text), SSH Key
+```
+Manage Jenkins > Credentials > System > Global Credentials
+```
