@@ -72,10 +72,33 @@ And now you can SSH Node server through Master server
 ssh 'ec2-user@NODE_SERVER_PRIVATE_IP'
 ```
 
-#CI Part
-##Jenkins
+Splunk Setup
 
-- Set up credential for docker(Username Password), Github OAuth(secret text), SSH Key
+- Allow seamless start for every boot up of server
 ```
-Manage Jenkins > Credentials > System > Global Credentials
+sudo /opt/splunk/bin/splunk enable boot-start
 ```
+
+- Allow incoming SSH traffic through the UFW (Uncomplicated Firewall) on your Ubuntu system
+```
+sudo ufw allow openSSH
+```
+
+- Allow incoming traffic from 8000
+```
+sudo ufw allow 8000
+```
+
+- Check UFW status and enable if inactive
+```
+sudo ufw status
+sudo ufw enable
+```
+
+- Start the Splunk
+```
+sudo /opt/splunk/bin/splunk start
+```
+
+
+  
