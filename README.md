@@ -76,7 +76,11 @@ Splunk Setup
 
 - Allow seamless start for every boot up of server
 ```
-sudo /opt/splunk/bin/splunk enable boot-start
+cd splunk
+cd bin
+sudo ./splunk start --accept-license
+
+sudo ./splunk enable boot-start
 ```
 
 - Allow incoming SSH traffic through the UFW (Uncomplicated Firewall) on your Ubuntu system
