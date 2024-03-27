@@ -133,6 +133,10 @@ resource "aws_instance" "my_ec2_instance2" {
       "kubectl apply -f https://docs.projectcalico.org/v3.18/manifests/calico.yaml",
       "kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/tigera-operator.yaml",
       "kubectl taint nodes --all node-role.kubernetes.io/control-plane-",
+
+      # Install Splunk
+      "wget -O splunk-9.1.1-64e843ea36b1-linux-2.6-amd64.deb 'https://download.splunk.com/products/splunk/releases/9.1.1/linux/splunk-9.1.1-64e843ea36b1-linux-2.6-amd64.deb'",
+      "sudo dpkg -i splunk-9.1.1-64e843ea36b1-linux-2.6-amd64.deb",
       ]
     }
   
