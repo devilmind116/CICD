@@ -110,6 +110,14 @@ resource "aws_instance" "my_ec2_instance2" {
       inline = [
       "sleep 200",
 
+      # Install Splunk
+      "cd /opt/",
+      "wget -O splunk-9.0.1-82c987350fde-Linux-x86_64.tgz 'https://download.splunk.com/products/splunk/releases/9.0.1/linux/splunk-9.0.1-82c987350fde-Linux-x86_64.tgz'",
+      "tar xvzf splunk-*.tgz",
+      "sudo ./splunk enable boot-start",
+        
+
+
       # Install Docker
       # REF: https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
       "sudo yum update -y",
@@ -117,33 +125,6 @@ resource "aws_instance" "my_ec2_instance2" {
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
       "sudo chmod 777 /var/run/docker.sock",
-      
-      # Install K8s
-      # REF: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
-      "sudo setenforce 0",
-      "sudo sed -i 's/^SELINUX=enforcing$$/SELINUX=permissive/' /etc/selinux/config",
-      "cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo",
-      "[kubernetes]",
-      "name=Kubernetes",
-      "baseurl=https://pkgs.k8s.io/core:/stable:/v1.29/rpm/",
-      "enabled=1",
-      "gpgcheck=1",
-      "gpgkey=https://pkgs.k8s.io/core:/stable:/v1.29/rpm/repodata/repomd.xml.key",
-      "exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni",
-      "EOF",
-      "sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes",
-      "sudo systemctl enable --now kubelet",
-      "sudo kubeadm init --pod-network-cidr=10.244.0.0/16  --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem",
-      "sudo mkdir -p $HOME/.kube",
-      "sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config",
-      "sudo chown $(id -u):$(id -g) $HOME/.kube/config",
-      "kubectl apply -f https://docs.projectcalico.org/v3.18/manifests/calico.yaml",
-      "kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/tigera-operator.yaml",
-      "kubectl taint nodes --all node-role.kubernetes.io/control-plane-",
-
-      # Install Splunk
-      "wget -O splunk-9.1.1-64e843ea36b1-linux-2.6-amd64.deb 'https://download.splunk.com/products/splunk/releases/9.1.1/linux/splunk-9.1.1-64e843ea36b1-linux-2.6-amd64.deb'",
-      "sudo dpkg -i splunk-9.1.1-64e843ea36b1-linux-2.6-amd64.deb",
       ]
     }
   
