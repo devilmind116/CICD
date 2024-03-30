@@ -21,6 +21,13 @@ resource "aws_security_group" "my_security_group1" {
   }
 
   ingress {
+    from_port   = 8088
+    to_port     = 8088
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -55,29 +62,19 @@ resource "aws_security_group" "my_security_group1" {
 #      ii. Copy it in the same directory as your terraform code
 resource "aws_instance" "my_ec2_instance1" {
   ami                    = "ami-0cf10cdf9fcd62d37"
-  instance_type          = "t2.medium"
+  instance_type          = "t2.large"
   vpc_security_group_ids = [aws_security_group.my_security_group1.id]
   key_name               = "My_Key" # paste your key-name here, do not use extension '.pem'
 
   # Consider EBS volume 30GB
   root_block_device {
-    volume_size = 30    # Volume size 30 GB
+    volume_size = 40    # Volume size 30 GB
     volume_type = "gp2" # General Purpose SSD
   }
 
   tags = {
     Name = "MASTER-SERVER"
   }
-
-  user_data = <<-EOF
-    #!/bin/bash
-    # wait for 1min before EC2 initialization
-    sleep 60
-    sudo wget https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
-    sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
-    sudo yum install -y apache-maven
-    sudo yum install java-1.8.0-devel -y
-  EOF
 
   # STEP3: USING REMOTE-EXEC PROVISIONER TO INSTALL TOOLS
   provisioner "remote-exec" {
@@ -94,15 +91,19 @@ resource "aws_instance" "my_ec2_instance1" {
       "sleep 200",
       # Install Git 
       "sudo yum install git -y",
-      
-      # Install Jenkins 
-      # REF: https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS/
-      "sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo",
-      "sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key",
-      "sudo yum install java-17-amazon-corretto -y",
-      "sudo yum install jenkins -y",
-      "sudo systemctl enable jenkins",
+
+      # Install Jenkins
+      "sudo apt update -y",
+      "wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc",
+      "sudo apt update -y",
+      "sudo apt install temurin-17-jdk -y",
+      "/usr/bin/java --version",
+      "curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null",
+      "echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null",
+      "sudo apt-get update -y",
+      "sudo apt-get install jenkins -y",
       "sudo systemctl start jenkins",
+      "sudo systemctl status jenkins",
 
       # Install Docker
       # REF: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-docker.html
@@ -110,19 +111,15 @@ resource "aws_instance" "my_ec2_instance1" {
       "sudo yum install docker -y",
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
-      "sudo usermod -aG docker jenkins",
+      "sudo usermod -aG docker ec2-user",
       # To avoid below permission error
       # Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock
       "sudo chmod 666 /var/run/docker.sock",
+      "docker run -d --name sonar -p 9000:9000 sonarqube:lts-community"
 
       # Install Trivy
       # REF: https://aquasecurity.github.io/trivy/v0.18.3/installation/
       "sudo rpm -ivh https://github.com/aquasecurity/trivy/releases/download/v0.18.3/trivy_0.18.3_Linux-64bit.rpm",
-
-      # Install Ansible
-      "sudo yum update -y",
-      "sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -y",
-      "sudo yum install git python python-devel python-pip openssl ansible -y",
     ]
   }
 }
