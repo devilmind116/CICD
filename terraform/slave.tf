@@ -115,9 +115,9 @@ resource "aws_instance" "my_ec2_instance2" {
       "sudo wget -O splunk-9.0.1-82c987350fde-Linux-x86_64.tgz 'https://download.splunk.com/products/splunk/releases/9.0.1/linux/splunk-9.0.1-82c987350fde-Linux-x86_64.tgz'",
       "sudo tar xvzf splunk-*.tgz",
       "cd splunk/bin/",
+      ## May need to rerun again once done
       "sudo ./splunk enable boot-start",
-        
-
+      " sudo ./splunk start --accept-license",   
 
       # Install Docker
       # REF: https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
