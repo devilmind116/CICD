@@ -21,6 +21,13 @@ resource "aws_security_group" "my_security_group1" {
   }
 
   ingress {
+    from_port   = 9000
+    to_port     = 9000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     from_port   = 8088
     to_port     = 8088
     protocol    = "tcp"
@@ -112,7 +119,7 @@ resource "aws_instance" "my_ec2_instance1" {
       # To avoid below permission error
       # Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock
       "sudo chmod 666 /var/run/docker.sock",
-      "docker run -d --name sonar -p 9000:9000 sonarqube:lts-community"
+      "docker run -d --name sonar -p 9000:9000 sonarqube:lts-community",
 
       # Install Trivy
       # REF: https://aquasecurity.github.io/trivy/v0.18.3/installation/
