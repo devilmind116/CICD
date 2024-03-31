@@ -114,6 +114,7 @@ resource "aws_instance" "my_ec2_instance2" {
       "cd /opt/",
       "sudo wget -O splunk-9.0.1-82c987350fde-Linux-x86_64.tgz 'https://download.splunk.com/products/splunk/releases/9.0.1/linux/splunk-9.0.1-82c987350fde-Linux-x86_64.tgz'",
       "sudo tar xvzf splunk-*.tgz",
+      "cd splunk/bin/",
       "sudo ./splunk enable boot-start",
         
 
